@@ -222,12 +222,6 @@ def parse_contents(contents):
     State('legend_data', 'data'),
     prevent_initial_call = True
 )
-# def download_data(n_clicks, data, legend_data):
-#     if n_clicks is not None:
-#         download_legend_data = json.dumps([legend_data, data])
-#         download_data = json.dumps(data)
-#         content_dict = {'content' : download_data}
-#     return dict(content_dict, filename = 'mapdata.text') , html.Pre(str(download_legend_data)
 
 def download_data(n_clicks, data, legend_data): # this version is outputting map and legend data as list of dictionaries
     if n_clicks is not None:
@@ -303,36 +297,6 @@ def add_legend(n_clicks, map_upload, container, nn_clicks):
             container.append(new_legend)
             nn_clicks  += 1
         return container, nn_clicks
-        # json_list = json.loads(map_upload)
-        # pc_colour_d = json_list[1]
-        # colour_set = set(pc_colour_d.values())
-        # colour_list = list(colour_set)
-        # nn_clicks = 0
-        # for col in colour_list:
-        #     nn_clicks  += 1
-        #     new_legend = html.Div(id = {'type' : 'legend_div',
-        #                                 'index': nn_clicks},
-        #                           children =
-        #                     [                               
-        #                              dbc.Input(id =  {'type' : 'colour_input',
-        #                                               'index' : nn_clicks},
-        #                                        value = str(col),
-        #                                        type = 'color',
-        #                                        style = {'width' : 75, 'height' : 50}
-                                     
-        #                             ),
-                                     
-        #                              dbc.Input(id = {'type' : 'colour_label',
-        #                                               'index' : nn_clicks},
-        #                                        type = 'text',
-        #                                        style = {'width' : 400, 'height' : 50}
-        #                             )
-        #                     ], style = {'display' : 'flex'}
-        #                 ) 
-        #     container.append(new_legend)
-        # return container, nn_clicks
-            
-
     
 # colour selected listener
 @app.callback(
@@ -418,64 +382,6 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
     debug_output = 'index triggered: ' + str(legendTriggered) + ' color selected: ' +str(selectedColor) + ' postcode: ' + str(postcode) + ' postcode list: ' + str(postcode_list) + ' ' + str(postcode_colour_d)           
     
     return fig, None, postcode_colour_d, html.Pre(debug_output) , clear_map_data
-    
-    
-    
-        
-    # if selectPC is None:
-    #     return fig, None, None
-    
-    # else:
-        
-    #     postcode = selectPC['points'][0]['location']
-        
-    #     if postcode in postcode_colour_d:
-    #         postcode_colour_d.pop(postcode)
-    #     else:         
-    #         triggeredColor = selectedColor[legendTriggered]
-    #         postcode_colour_d[postcode] = triggeredColor
-            
-    #     postcode_list = list(postcode_colour_d.keys())
-
-        
-    #     if len(postcode_list) == 0:
-    #             return None
-        
-    #     df_state = df[df.codestte == selectedState]
-    #     fig = px.choropleth_mapbox(df_state,
-    #                                 geojson = df_state.geometry,
-    #                                 locations = df_state.index,
-    #                                 opacity = 0.2,
-    #                                 center = {'lat' : -33.872762037132375, 'lon' : 147.22963557432993},
-    #                                 zoom = 4.5,
-    #                                 height = 1200,
-    #                                 width = 1100,
-    #                                 mapbox_style="carto-positron"
-    #     )
-        
-    #     selected_df = df_state.loc[postcode_list, :]
-    #     selected_df.reset_index(inplace = True)
-    #     selected_df['terr_colour'] = selected_df['poa_code21'].apply(lambda x: postcode_colour_d.get(x))
-    #     selected_df.set_index('poa_code21', inplace = True)
-        
-    #     for colour in selected_df.terr_colour.unique():
-    #         dff = selected_df[selected_df.terr_colour == colour]
-            
-    #         fig.add_trace(
-    #             px.choropleth_mapbox(dff,
-    #                                  geojson = dff.geometry,
-    #                                  locations = dff.index,
-    #                                  color = dff.terr_colour,
-    #                                  color_discrete_map=({colour : colour}),
-    #                                  opacity = 0.7
-    #                                  ).data[0]
-    #         )   
-
-    #     fig.update_layout(uirevision = 'Retain user zoom preferences')             
-             
-        
-        # return fig, None, postcode_colour_d
-        #
     
 
 if __name__ == "__main__": app.run_server(debug=False, host='0.0.0.0', port=8050)
