@@ -195,7 +195,6 @@ app.layout = html.Div(
     prevent_initial_call = True
     )
 def get_legend_label(n_clicks, legend_labels, legend_colour):
-    print('access legend cb fired')
     legend_dict = dict(zip(legend_colour, legend_labels))
     return legend_dict , html.Pre('get_legend_label function output: ' + str(legend_dict))
 
@@ -208,7 +207,6 @@ def get_legend_label(n_clicks, legend_labels, legend_colour):
     prevent_initial_call = True
 )
 def parse_contents(contents):
-    print('import data cb fired')
     content_type, content_string = contents.split(',')
     decoded_content = base64.b64decode(content_string)
     decoded_str = decoded_content.decode('utf-8')
@@ -232,7 +230,6 @@ def parse_contents(contents):
 #     return dict(content_dict, filename = 'mapdata.text') , html.Pre(str(download_legend_data)
 
 def download_data(n_clicks, data, legend_data): # this version is outputting map and legend data as list of dictionaries
-    print('download data cb fired')
     if n_clicks is not None:
         download_legend_data = json.dumps([legend_data, data])
         download_data = json.dumps(data)
@@ -253,7 +250,6 @@ def download_data(n_clicks, data, legend_data): # this version is outputting map
     prevent_initial_call = True
 )
 def add_legend(n_clicks, map_upload, container, nn_clicks):
-    print('add new legend entry cb fired')
     if map_upload is None:
         if n_clicks is None:
             return container, nn_clicks
@@ -283,8 +279,6 @@ def add_legend(n_clicks, map_upload, container, nn_clicks):
     else:
         json_list = json.loads(map_upload)
         pc_colour_d = json_list[0]
-        print('pc_colour_d in legend generator: ')
-        print(pc_colour_d)
         for col, label in pc_colour_d.items():
             new_legend = html.Div(id = {'type' : 'legend_div',
                                         'index': nn_clicks},
@@ -348,8 +342,6 @@ def add_legend(n_clicks, map_upload, container, nn_clicks):
     prevent_initial_call = True
     ) 
 def colour_listener(colourLastSelected):
-    print('colour selected listener cb fired')
-    # print(type(ctx.triggered_id.index))
     return ctx.triggered_id.index #, html.Pre(ctx.triggered_id.index) 
     
 
@@ -368,17 +360,12 @@ def colour_listener(colourLastSelected):
     prevent_initial_call = True
     )
 def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUpload):
-    print('update map cb fired')
     clear_map_data = False
     if mapUpload is not None:
         json_str_list = json.loads(mapUpload)
         json_str = json_str_list[1]       
         postcode_colour_d.update(json_str)
         clear_map_data = True
-        print('postcode_colour_d inside if mapupload is not none: ')
-        print(postcode_colour_d)
-    print(selectPC) 
-    print(postcode_colour_d) 
    
     if selectPC is not None:
         postcode = selectPC['points'][0]['location']
@@ -390,8 +377,6 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
             postcode_colour_d[postcode] = triggeredColor
     
     postcode_list = list(postcode_colour_d.keys())
-    print(postcode_list)
-    print(postcode_colour_d)
     
     if type(selectedState) == str:
         df_state = df[df.codestte == selectedState]
@@ -415,13 +400,9 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
     selected_df.reset_index(inplace = True)
     selected_df['terr_colour'] = selected_df['poa_code21'].apply(lambda x: postcode_colour_d.get(x))
     selected_df.set_index('poa_code21', inplace = True)
-
-    print(selected_df)
     
     for colour in selected_df.terr_colour.unique():
-        print(colour)
         dff = selected_df[selected_df.terr_colour == colour]
-        print(dff)
         fig.add_trace(
             px.choropleth_mapbox(dff,
                                   geojson = dff.geometry,
@@ -434,8 +415,7 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
 
     fig.update_layout(uirevision = 'Retain user zoom preferences')  
 
-    debug_output = 'index triggered: ' + str(legendTriggered) + ' color selected: ' +str(selectedColor) + ' postcode: ' + str(postcode) + ' postcode list: ' + str(postcode_list) + ' ' + str(postcode_colour_d)        
-    print('postcode_colour_d printed at end of map func: ' + str(postcode_colour_d))    
+    debug_output = 'index triggered: ' + str(legendTriggered) + ' color selected: ' +str(selectedColor) + ' postcode: ' + str(postcode) + ' postcode list: ' + str(postcode_list) + ' ' + str(postcode_colour_d)           
     
     return fig, None, postcode_colour_d, html.Pre(debug_output) , clear_map_data
     
