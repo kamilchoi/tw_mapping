@@ -379,15 +379,6 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
                                   opacity = 0.7
                                   ).data[0]
         )
-        print(str(            px.choropleth_mapbox(dff,
-                                  geojson = dff.geometry,
-                                  locations = dff.index,
-                                  color = dff.terr_colour,
-                                  color_discrete_map=({colour : colour}),
-                                  opacity = 0.7
-                                  ).data[0]
-                 )
-             )
 
     fig.update_layout(uirevision = 'Retain user zoom preferences')  
 
