@@ -342,6 +342,7 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
             postcode_colour_d[postcode] = triggeredColor
     
     postcode_list = list(postcode_colour_d.keys())
+    print('postcode_list: ' + str(postcode_list))
     
     if type(selectedState) == str:
         df_state = df[df.codestte == selectedState]
@@ -365,9 +366,10 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
     selected_df.reset_index(inplace = True)
     selected_df['terr_colour'] = selected_df['poa_code21'].apply(lambda x: postcode_colour_d.get(x))
     selected_df.set_index('poa_code21', inplace = True)
-    
+    print('selected_df: ' + str(selected_df))
     for colour in selected_df.terr_colour.unique():
         dff = selected_df[selected_df.terr_colour == colour]
+        print('df used to create new trace: ')
         fig.add_trace(
             px.choropleth_mapbox(dff,
                                   geojson = dff.geometry,
