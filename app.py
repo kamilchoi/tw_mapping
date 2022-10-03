@@ -369,7 +369,7 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
     print('selected_df: ' + str(selected_df))
     for colour in selected_df.terr_colour.unique():
         dff = selected_df[selected_df.terr_colour == colour]
-        print('df used to create new trace: ')
+        print('df used to create new trace: ' + str(dff)
         fig.add_trace(
             px.choropleth_mapbox(dff,
                                   geojson = dff.geometry,
@@ -378,7 +378,14 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
                                   color_discrete_map=({colour : colour}),
                                   opacity = 0.7
                                   ).data[0]
-        )   
+        )
+        print(str(            px.choropleth_mapbox(dff,
+                                  geojson = dff.geometry,
+                                  locations = dff.index,
+                                  color = dff.terr_colour,
+                                  color_discrete_map=({colour : colour}),
+                                  opacity = 0.7
+                                  ).data[0])
 
     fig.update_layout(uirevision = 'Retain user zoom preferences')  
 
