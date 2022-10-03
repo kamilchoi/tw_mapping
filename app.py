@@ -328,7 +328,7 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
     if mapUpload is not None:
         json_str_list = json.loads(mapUpload)
         json_str = json_str_list[1]
-        print('json_str: ' + str(json_str)
+        print('json_str: ' + str(json_str))
         postcode_colour_d.update(json_str)
         clear_map_data = True
    
