@@ -70,7 +70,7 @@ state_coords = {'NT' : [-19.491411, 132.550964],
 # initialise variables
 df_state = df[df.codestte == 'NSW']
 
-postcode_colour_d = dict()
+#postcode_colour_d = dict()
 
 fig = px.choropleth_mapbox(df_state,
                            geojson = df_state.geometry,
@@ -135,15 +135,15 @@ app.layout = html.Div(
                     
                     html.Div(id = 'test_area'),
                     
-                    dcc.Store(id = 'legend_triggered'), # which legend was last triggered
+                    dcc.Store(id = 'legend_triggered', storage_type = 'session'), # which legend was last triggered
                     
-                    dcc.Store(id = 'map_legend_data'), # map data stored for download
+                    dcc.Store(id = 'map_legend_data', data = {}, storage_type = 'session'), # map data stored for download
                     
-                    dcc.Store(id = 'map_upload'),
+                    dcc.Store(id = 'map_upload', storage_type = 'session'),
                     
-                    dcc.Store(id = 'nn_click_count', data = 0),
+                    dcc.Store(id = 'nn_click_count', data = 0, storage_type = 'session'),
                     
-                    dcc.Store(id = 'legend_data'),
+                    dcc.Store(id = 'legend_data', storage_type = 'session'),
                                    
                     dcc.Download(id = 'download_map_data'),
                     
@@ -284,6 +284,7 @@ def add_legend(n_clicks, map_upload, container, nn_clicks):
     ) 
 def colour_listener(colourLastSelected):
     return ctx.triggered_id.index #, html.Pre(ctx.triggered_id.index) 
+
     
 
 # update map
@@ -293,6 +294,7 @@ def colour_listener(colourLastSelected):
     Output('map_legend_data', 'data'),
     #Output('test_area', 'children'),
     Output('map_upload', 'clear_data'),
+    Input('map_legend_data', 'data'),
     Input('graph', 'clickData'),
     Input('select_state', 'value'),
     State({'type' : 'colour_input', 'index' : ALL}, 'value'),  
@@ -300,7 +302,7 @@ def colour_listener(colourLastSelected):
     Input('map_upload', 'data'),
     prevent_initial_call = True
     )
-def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUpload):
+def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legendTriggered, mapUpload):
     clear_map_data = False
     if mapUpload is not None:
         json_str_list = json.loads(mapUpload)
@@ -346,7 +348,6 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
     print('selected_df: ' + str(selected_df))
     for colour in selected_df.terr_colour.unique():
         dff = selected_df[selected_df.terr_colour == colour]
-        print('df used to create new trace: ' + str(dff))
         fig.add_trace(
             px.choropleth_mapbox(dff,
                                   geojson = dff.geometry,
