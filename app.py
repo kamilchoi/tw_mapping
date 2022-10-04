@@ -147,7 +147,7 @@ app.layout = html.Div(
                                    
                     dcc.Download(id = 'download_map_data'),
                     
-                    html.Button('test button', id = 'test_button', style = {'width' : 200, 'height' : 75}),
+                    #html.Button('test button', id = 'test_button', style = {'width' : 200, 'height' : 75}),
                     
                     html.Div(id = 'legend_container', children = []),
 
