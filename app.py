@@ -53,7 +53,6 @@ df = pc_sales_df
 df['terr_colour'] = np.NaN
 
 
-
 # filter by state to speed up plotting
 
 
@@ -67,10 +66,6 @@ state_coords = {'NT' : [-19.491411, 132.550964],
                 'WA' : [-25.953512, 117.857048],
                 'TAS' : [-41.640079, 146.315918]
                 }
-
-
-
-
 
 # initialise variables
 df_state = df[df.codestte == 'NSW']
@@ -137,24 +132,6 @@ app.layout = html.Div(
                             html.Button('Add new legend entry', id = 'btn_add_legend_entry', style = {'width' : 200, 'height' : 75})
                          ], style = {'display' : 'flex'}
                     ),
-                     
-                    #  html.Div(id = {'type' : 'legend_div',
-                    #                 'index': 0},
-                    #           children =
-                    #      [                               
-                    #          dbc.Input(id = {'type' : 'colour_input',
-                    #                          'index' : 0},
-                    #                    type = 'color',
-                    #                    style = {'width' : 75, 'height' : 50}                             
-                    #         ),
-                             
-                    #          dbc.Input(id = {'type' : 'colour_label',
-                    #                          'index' : 0},
-                    #                    type = 'text',
-                    #                    style = {'width' : 400, 'height' : 50}
-                    #         )
-                    #     ], style = {'display' : 'flex'}
-                    # ),
                     
                     html.Div(id = 'test_area'),
                     
@@ -188,7 +165,7 @@ app.layout = html.Div(
 # access legend labels, colours
 @app.callback(
     Output('legend_data', 'data'),
-    Output('legend_label_test_area', 'children'),
+    #Output('legend_label_test_area', 'children'),
     Input({'type' : 'legend_div', 'index' : ALL},'n_clicks'),
     State({'type' : 'colour_label', 'index' : ALL}, 'value'),
     State({'type' : 'colour_input', 'index' : ALL}, 'value'),
@@ -196,13 +173,13 @@ app.layout = html.Div(
     )
 def get_legend_label(n_clicks, legend_labels, legend_colour):
     legend_dict = dict(zip(legend_colour, legend_labels))
-    return legend_dict , html.Pre('get_legend_label function output: ' + str(legend_dict))
+    return legend_dict #, html.Pre('get_legend_label function output: ' + str(legend_dict))
 
 
 # import data
 @app.callback(
     Output('map_upload', 'data'),
-    Output('test_import_area', 'children'), # populate div while debugging
+    #Output('test_import_area', 'children'), # populate div while debugging
     Input('import_data', 'contents'),
     prevent_initial_call = True
 )
@@ -210,7 +187,7 @@ def parse_contents(contents):
     content_type, content_string = contents.split(',')
     decoded_content = base64.b64decode(content_string)
     decoded_str = decoded_content.decode('utf-8')
-    return decoded_str, html.Pre('output from parse_contents function: ' + decoded_str[:50])
+    return decoded_str #, html.Pre('output from parse_contents function: ' + decoded_str[:50])
 
 
 # download data
@@ -314,7 +291,7 @@ def colour_listener(colourLastSelected):
     Output('graph', 'figure'),
     Output('graph', 'clickData'),
     Output('map_legend_data', 'data'),
-    Output('test_area', 'children'),
+    #Output('test_area', 'children'),
     Output('map_upload', 'clear_data'),
     Input('graph', 'clickData'),
     Input('select_state', 'value'),
@@ -382,9 +359,9 @@ def update_map(selectPC, selectedState, selectedColor, legendTriggered, mapUploa
 
     fig.update_layout(uirevision = 'Retain user zoom preferences')  
 
-    debug_output = 'index triggered: ' + str(legendTriggered) + ' color selected: ' +str(selectedColor) + ' postcode: ' + str(postcode) + ' postcode list: ' + str(postcode_list) + ' ' + str(postcode_colour_d)           
+    #debug_output = 'index triggered: ' + str(legendTriggered) + ' color selected: ' +str(selectedColor) +  'postcode list: ' + str(postcode_list) + ' ' + str(postcode_colour_d)           
     
-    return fig, None, postcode_colour_d, html.Pre(debug_output) , clear_map_data
+    return fig, None, postcode_colour_d, clear_map_data
     
 
 if __name__ == "__main__": app.run_server(debug=False, host='0.0.0.0', port=8050)
