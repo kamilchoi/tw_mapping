@@ -45,7 +45,7 @@ pc_sales_df = pc_sales_df.merge(delivery_loc, left_on = 'poa_code21', right_on =
 
 # ready geometries
 
-pc_sales_df['geometry'] = pc_sales_df.to_crs(pc_sales_df.estimate_utm_crs()).simplify(2000).to_crs(pc_sales_df.crs) # simplify boundaries to 1km
+pc_sales_df['geometry'] = pc_sales_df.to_crs(pc_sales_df.estimate_utm_crs()).simplify(2000).to_crs(pc_sales_df.crs) # simplify boundaries to 2km
 pc_sales_df = pc_sales_df.to_crs( epsg = 4326) # change to lat/long
 pc_sales_df.set_index('poa_code21', inplace = True)
 
@@ -135,15 +135,15 @@ app.layout = html.Div(
                     
                     html.Div(id = 'test_area'),
                     
-                    dcc.Store(id = 'legend_triggered', storage_type = 'session'), # which legend was last triggered
+                    dcc.Store(id = 'legend_triggered', storage_type = 'memory'), # which legend was last triggered
                     
-                    dcc.Store(id = 'map_legend_data', data = {}, storage_type = 'session'), # map data stored for download
+                    dcc.Store(id = 'map_legend_data', data = {}, storage_type = 'memory'), # map data stored for download
                     
-                    dcc.Store(id = 'map_upload', storage_type = 'session'),
+                    dcc.Store(id = 'map_upload', storage_type = 'memory'),
                     
-                    dcc.Store(id = 'nn_click_count', data = 0, storage_type = 'session'),
+                    dcc.Store(id = 'nn_click_count', data = 0, storage_type = 'memory'),
                     
-                    dcc.Store(id = 'legend_data', storage_type = 'session'),
+                    dcc.Store(id = 'legend_data', storage_type = 'memory'),
                                    
                     dcc.Download(id = 'download_map_data'),
                     
@@ -307,7 +307,7 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
     if mapUpload is not None:
         json_str_list = json.loads(mapUpload)
         json_str = json_str_list[1]
-        print('json_str: ' + str(json_str))
+        # print('json_str: ' + str(json_str))
         postcode_colour_d.update(json_str)
         clear_map_data = True
    
@@ -321,7 +321,7 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
             postcode_colour_d[postcode] = triggeredColor
     
     postcode_list = list(postcode_colour_d.keys())
-    print('postcode_list: ' + str(postcode_list))
+    # print('postcode_list: ' + str(postcode_list))
     
     if type(selectedState) == str:
         df_state = df[df.codestte == selectedState]
@@ -345,7 +345,7 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
     selected_df.reset_index(inplace = True)
     selected_df['terr_colour'] = selected_df['poa_code21'].apply(lambda x: postcode_colour_d.get(x))
     selected_df.set_index('poa_code21', inplace = True)
-    print('selected_df: ' + str(selected_df))
+    # print('selected_df: ' + str(selected_df))
     for colour in selected_df.terr_colour.unique():
         dff = selected_df[selected_df.terr_colour == colour]
         fig.add_trace(
