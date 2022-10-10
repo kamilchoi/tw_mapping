@@ -31,7 +31,6 @@ pio.renderers.default='browser'
 
 # import df
 pc_sales_df = gpd.read_file('pc_sales_df.geojson')
-pc_sales_df.head(3)
 
 # join ship from locations
 delivery_loc = pd.read_csv('pc_shipfrom_loc.csv')
@@ -55,9 +54,6 @@ df['terr_colour'] = np.NaN
 
 # filter by state to speed up plotting
 
-
-# state_df = pc_sales_df[(pc_sales_df.codestte == state) | (pc_sales_df[state] == True)]
-# state_df = pc_sales_df[pc_sales_df.codestte == state]
 state_coords = {'NT' : [-19.491411, 132.550964],
                 'NSW' : [-33.872762037132375, 147.22963557432993],
                 'VIC' : [-37.020100, 144.964600],
@@ -69,8 +65,6 @@ state_coords = {'NT' : [-19.491411, 132.550964],
 
 # initialise variables
 df_state = df[df.codestte == 'NSW']
-
-#postcode_colour_d = dict()
 
 fig = px.choropleth_mapbox(df_state,
                            geojson = df_state.geometry,
@@ -91,12 +85,24 @@ server = app.server
 
 app.layout = html.Div(
     [
-     dbc.Row(                     
-         dcc.Dropdown(id = 'select_state',
-                      options = [{'label' : i, 'value' : i} for i in pc_sales_df.codestte.unique()],
-                      value = 'NSW',
-                      multi = True,
-                      style = {'width' : 400}  
+     dbc.Row( 
+         dbc.Col(
+             [
+                 html.Div(                        
+                     [                      
+                         html.Pre('Select a State', style = {'paddingRight' : '20px', 'paddingTop' : '10px', 'paddingBottom' : '0px'}),
+                      
+                         dcc.Dropdown(
+                                     id = 'select_state',
+                                      options = [{'label' : i, 'value' : i} for i in pc_sales_df.codestte.unique()],
+                                      value = 'NSW',
+                                      multi = True,
+                                      style = {'width' : 400} 
+                              
+                        )
+                    ], style = {'paddingLeft' : '70px', 'paddingTop' : '10px', 'display' : 'flex'}
+                )
+            ]
         )
     ),
      
@@ -115,22 +121,54 @@ app.layout = html.Div(
                      html.Br(),
                      html.Div(
                          [
-                             html.Button('Download map and legend', id = 'btn_download_map', style = {'width' : 200, 'height' : 75}),
-                     
-                             dcc.Upload('Import data', id = 'import_data',
-                                style = {#'width' : '30%', 
-                                        #'height' : '80px',
-                                        'lineheight' : '200px',
-                                        'borderWidth' : '1px',
-                                        'textAlign' : 'center',
-                                        'margin' : '20px',
-                                        'cursor' : 'pointer',
-                                        'background-color' : 'rgb(201,201,201)'
+                             html.Button('Add new legend entry', 
+                                         id = 'btn_add_legend_entry', 
+                                         style = {
+                                                 'width' : 150, 
+                                                 'height' : 75, 
+                                                 'backgroundColor' : 'rgb(177,221,140)', 
+                                                 'marginRight' : '10px', 
+                                                 'borderWidth' : '1px',
+                                                 'borderStyle' : 'solid',
+                                                 'borderRadius' : '3px',
+                                                 'borderColor' : 'rgb(174,174,174)',
+                                        }
+                            ),
+                             
+                             html.Button('Download map and legend', 
+                                         id = 'btn_download_map', 
+                                         style = {
+                                                 'width' : 150, 
+                                                 'height' : 75, 
+                                                 'margin-right' : '10px', 
+                                                 'borderWidth' : '1px',
+                                                 'borderStyle' : 'solid',
+                                                 'borderRadius' : '3px',
+                                                 'borderColor' : 'rgb(174,174,174)', 
+                                                 'background-color' : 'rgb(242,242,242)'
                                         }
                             ),
                      
-                            html.Button('Add new legend entry', id = 'btn_add_legend_entry', style = {'width' : 200, 'height' : 75})
-                         ], style = {'display' : 'flex'}
+                             html.Div(
+                                     dcc.Upload('Click to import data', 
+                                                id = 'import_data',
+                                                style = {
+                                                        'textAlign' : 'center',
+                                                        'margin' : '10px',
+                                                        'cursor' : 'pointer'
+                                                }
+                                                
+                                    ), style = {'width' : 150,
+                                                'height' : 75,
+                                                'borderWidth' : '1px',
+                                                'borderStyle' : 'solid',
+                                                'borderRadius' : '3px',
+                                                'borderColor' : 'rgb(174,174,174)',
+                                                'background-color' : 'rgb(242,242,242)'
+                                        }
+                            ),
+                     
+                         ], style = {'display' : 'flex', 'paddingBottom' : '10px'}
                     ),
                     
                     html.Div(id = 'test_area'),
@@ -166,7 +204,7 @@ app.layout = html.Div(
 @app.callback(
     Output('legend_data', 'data'),
     #Output('legend_label_test_area', 'children'),
-    Input({'type' : 'legend_div', 'index' : ALL},'n_clicks'),
+    Input({'type' : 'colour_label', 'index' : ALL},'value'),
     State({'type' : 'colour_label', 'index' : ALL}, 'value'),
     State({'type' : 'colour_input', 'index' : ALL}, 'value'),
     prevent_initial_call = True
@@ -238,7 +276,8 @@ def add_legend(n_clicks, map_upload, container, nn_clicks):
                                          dbc.Input(id = {'type' : 'colour_label',
                                                           'index' : nn_clicks},
                                                    type = 'text',
-                                                   style = {'width' : 400, 'height' : 50}
+                                                   placeholder = 'Enter a sales territory name',
+                                                   style = {'width' : 395, 'height' : 50}
                                         )
                                 ], style = {'display' : 'flex'}
                     ) 
@@ -267,7 +306,7 @@ def add_legend(n_clicks, map_upload, container, nn_clicks):
                                                       'index' : nn_clicks},
                                                type = 'text',
                                                value = label,
-                                               style = {'width' : 400, 'height' : 50}
+                                               style = {'width' : 395, 'height' : 50}
                                     )
                             ], style = {'display' : 'flex'}
                         ) 
@@ -318,7 +357,6 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
             postcode_colour_d.pop(postcode)
         else:   
             if len(selectedColor) == 0 or None in selectedColor:
-                print('selectedColor len is zero or None')
                 global fig
                 return fig, None, postcode_colour_d, clear_map_data
             else:
@@ -327,7 +365,6 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
                 postcode_colour_d[postcode] = triggeredColor
     
     postcode_list = list(postcode_colour_d.keys())
-    # print('postcode_list: ' + str(postcode_list))
     
     if type(selectedState) == str:
         df_state = df[df.codestte == selectedState]
@@ -351,7 +388,7 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
     selected_df.reset_index(inplace = True)
     selected_df['terr_colour'] = selected_df['poa_code21'].apply(lambda x: postcode_colour_d.get(x))
     selected_df.set_index('poa_code21', inplace = True)
-    # print('selected_df: ' + str(selected_df))
+
     for colour in selected_df.terr_colour.unique():
         dff = selected_df[selected_df.terr_colour == colour]
         fig.add_trace(
@@ -371,6 +408,6 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
     return fig, None, postcode_colour_d, clear_map_data
     
 
-if __name__ == "__main__": app.run_server(debug=False, host='0.0.0.0', port=8050)
+if __name__ == "__main__": app.run_server(debug=True, host='0.0.0.0', port=8050)
 
 
