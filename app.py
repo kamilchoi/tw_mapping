@@ -44,7 +44,7 @@ pc_sales_df = pc_sales_df.merge(delivery_loc, left_on = 'poa_code21', right_on =
 
 # ready geometries
 
-pc_sales_df['geometry'] = pc_sales_df.to_crs(pc_sales_df.estimate_utm_crs()).simplify(2000).to_crs(pc_sales_df.crs) # simplify boundaries to 2km
+pc_sales_df['geometry'] = pc_sales_df.to_crs(pc_sales_df.estimate_utm_crs()).simplify(500).to_crs(pc_sales_df.crs) # simplify boundaries to 500m
 pc_sales_df = pc_sales_df.to_crs( epsg = 4326) # change to lat/long
 pc_sales_df.set_index('poa_code21', inplace = True)
 
@@ -86,24 +86,24 @@ server = app.server
 app.layout = html.Div(
     [
      dbc.Row( 
-         dbc.Col(
-             [
-                 html.Div(                        
-                     [                      
-                         html.Pre('Select a State', style = {'paddingRight' : '20px', 'paddingTop' : '10px', 'paddingBottom' : '0px'}),
+        #  dbc.Col(
+        #      [
+        #          html.Div(                        
+        #              [                      
+        #                  html.Pre('Select a State', style = {'paddingRight' : '20px', 'paddingTop' : '10px', 'paddingBottom' : '0px'}),
                       
-                         dcc.Dropdown(
-                                     id = 'select_state',
-                                      options = [{'label' : i, 'value' : i} for i in pc_sales_df.codestte.unique()],
-                                      value = 'NSW',
-                                      multi = True,
-                                      style = {'width' : 400} 
+        #                  dcc.Dropdown(
+        #                              id = 'select_state',
+        #                               options = [{'label' : i, 'value' : i} for i in pc_sales_df.codestte.unique()],
+        #                               value = 'NSW',
+        #                               multi = True,
+        #                               style = {'width' : 400} 
                               
-                        )
-                    ], style = {'paddingLeft' : '70px', 'paddingTop' : '10px', 'display' : 'flex'}
-                )
-            ]
-        )
+        #                 )
+        #             ], style = {'paddingLeft' : '70px', 'paddingTop' : '10px', 'display' : 'flex'}
+        #         )
+        #     ]
+        # )
     ),
      
      dbc.Row(
@@ -117,58 +117,91 @@ app.layout = html.Div(
              
              dbc.Col(
                  [  
-                     html.Br(),
-                     html.Br(),
-                     html.Div(
+                     dbc.Row(
                          [
-                             html.Button('Add new legend entry', 
-                                         id = 'btn_add_legend_entry', 
-                                         style = {
-                                                 'width' : 150, 
-                                                 'height' : 75, 
-                                                 'backgroundColor' : 'rgb(177,221,140)', 
-                                                 'marginRight' : '10px', 
-                                                 'borderWidth' : '1px',
-                                                 'borderStyle' : 'solid',
-                                                 'borderRadius' : '3px',
-                                                 'borderColor' : 'rgb(174,174,174)',
-                                        }
+                             html.Div(                        
+                                 [
+                                     html.Br(),
+                                     
+                                        html.Div( 
+                                                html.Pre('Select a State', 
+                                                        style = {
+                                                                  'font-family' : 'arial',
+                                                                  'font-size' : '17px',
+                                                                  'paddingLeft' : '10px', 
+                                                                  'paddingTop' : '10px', 
+                                                                  'paddingBottom' : '0px'
+                                                         }
+                                                ), style = {'width' : '160px', 'paddingRight' : '10px'}
+                                        ),
+                                  
+                                     dcc.Dropdown(
+                                                 id = 'select_state',
+                                                  options = [{'label' : i, 'value' : i} for i in pc_sales_df.codestte.unique()],
+                                                  value = 'NSW',
+                                                  multi = True,
+                                                  style = {'width' : 310} 
+                                          
+                                    )
+                                ], style = {'paddingTop' : '50px', 'display' : 'flex'}
                             ),
-                             
-                             html.Button('Download map and legend', 
-                                         id = 'btn_download_map', 
-                                         style = {
-                                                 'width' : 150, 
-                                                 'height' : 75, 
-                                                 'margin-right' : '10px', 
-                                                 'borderWidth' : '1px',
-                                                 'borderStyle' : 'solid',
-                                                 'borderRadius' : '3px',
-                                                 'borderColor' : 'rgb(174,174,174)', 
-                                                 'background-color' : 'rgb(242,242,242)'
-                                        }
-                            ),
-                     
+                         ]
+                    ),
+                     dbc.Row(
+                         [
                              html.Div(
-                                     dcc.Upload('Click to import data', 
-                                                id = 'import_data',
-                                                style = {
-                                                        'textAlign' : 'center',
-                                                        'margin' : '10px',
-                                                        'cursor' : 'pointer'
+                                 [
+                                        
+                                     html.Button('Add new legend entry', 
+                                                 id = 'btn_add_legend_entry', 
+                                                 style = {
+                                                         'width' : 150, 
+                                                         'height' : 75, 
+                                                         'backgroundColor' : 'rgb(177,221,140)', 
+                                                         'marginRight' : '10px', 
+                                                         'borderWidth' : '1px',
+                                                         'borderStyle' : 'solid',
+                                                         'borderRadius' : '3px',
+                                                         'borderColor' : 'rgb(174,174,174)',
                                                 }
-                                                
-                                    ), style = {'width' : 150,
-                                                'height' : 75,
-                                                'borderWidth' : '1px',
-                                                'borderStyle' : 'solid',
-                                                'borderRadius' : '3px',
-                                                'borderColor' : 'rgb(174,174,174)',
-                                                'background-color' : 'rgb(242,242,242)'
-                                        }
+                                    ),
+                                     
+                                     html.Button('Download map and legend', 
+                                                 id = 'btn_download_map', 
+                                                 style = {
+                                                         'width' : 150, 
+                                                         'height' : 75, 
+                                                         'margin-right' : '10px', 
+                                                         'borderWidth' : '1px',
+                                                         'borderStyle' : 'solid',
+                                                         'borderRadius' : '3px',
+                                                         'borderColor' : 'rgb(174,174,174)', 
+                                                         'background-color' : 'rgb(242,242,242)'
+                                                }
+                                    ),
+                             
+                                     html.Div(
+                                             dcc.Upload('Click to import data', 
+                                                        id = 'import_data',
+                                                        style = {
+                                                                'textAlign' : 'center',
+                                                                'margin' : '10px',
+                                                                'cursor' : 'pointer'
+                                                        }
+                                                        
+                                            ), style = {'width' : 150,
+                                                        'height' : 75,
+                                                        'borderWidth' : '1px',
+                                                        'borderStyle' : 'solid',
+                                                        'borderRadius' : '3px',
+                                                        'borderColor' : 'rgb(174,174,174)',
+                                                        'background-color' : 'rgb(242,242,242)'
+                                                }
+                                    ),
+                             
+                                 ], style = {'display' : 'flex', 'paddingBottom' : '10px'}
                             ),
-                     
-                         ], style = {'display' : 'flex', 'paddingBottom' : '10px'}
+                        ]
                     ),
                     
                     html.Div(id = 'test_area'),
