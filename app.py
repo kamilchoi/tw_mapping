@@ -304,10 +304,10 @@ def colour_listener(colourLastSelected):
     )
 def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legendTriggered, mapUpload):
     clear_map_data = False
+   
     if mapUpload is not None:
         json_str_list = json.loads(mapUpload)
         json_str = json_str_list[1]
-        # print('json_str: ' + str(json_str))
         postcode_colour_d.update(json_str)
         clear_map_data = True
    
@@ -317,8 +317,14 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
         if postcode in postcode_colour_d:
             postcode_colour_d.pop(postcode)
         else:   
-            triggeredColor = selectedColor[legendTriggered]
-            postcode_colour_d[postcode] = triggeredColor
+            if len(selectedColor) == 0 or None in selectedColor:
+                print('selectedColor len is zero or None')
+                global fig
+                return fig, None, postcode_colour_d, clear_map_data
+            else:
+
+                triggeredColor = selectedColor[legendTriggered]
+                postcode_colour_d[postcode] = triggeredColor
     
     postcode_list = list(postcode_colour_d.keys())
     # print('postcode_list: ' + str(postcode_list))
