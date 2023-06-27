@@ -30,10 +30,10 @@ pio.renderers.default='browser'
 
 
 # import df
-pc_sales_df = gpd.read_file('C:/Users/KAmbrozewicz/Documents/GitHub/tw_mapping/pc_sales_df.geojson')
+pc_sales_df = gpd.read_file('pc_sales_df.geojson')
 
 # join ship from locations
-delivery_loc = pd.read_csv('C:/Users/KAmbrozewicz/Documents/GitHub/tw_mapping/pc_shipfrom_loc.csv')
+delivery_loc = pd.read_csv('pc_shipfrom_loc.csv')
 delivery_loc['Row Labels'] = delivery_loc['Row Labels'].astype('str')
 delivery_loc['Row Labels'] = delivery_loc['Row Labels'].apply(lambda x: '0' + x if x.startswith('8') else x)
 delivery_loc.replace(0, False, inplace = True)
@@ -53,7 +53,7 @@ df['terr_colour'] = np.NaN
 
 
 # store data WA bunnings
-store_data = pd.read_csv(r'C:/Users/KAmbrozewicz/Documents/GitHub/tw_mapping/20221121_SF_latest_add.csv')
+store_data = pd.read_csv(r'20221121_SF_latest_add.csv')
 store_data['total_tw_purchases'] = store_data['total_tw_purchases'].astype(float)
 
 
