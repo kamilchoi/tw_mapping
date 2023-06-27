@@ -53,7 +53,7 @@ df['terr_colour'] = np.NaN
 
 
 # store data WA bunnings
-store_data = pd.read_csv(r'C:\Users\KAmbrozewicz\OneDrive - UMCOS NEWCOMBE PTY LIMITED\GIS\20221121_SF_latest_add.csv')
+store_data = pd.read_csv(r'C:/Users/KAmbrozewicz/Documents/GitHub/tw_mapping/20221121_SF_latest_add.csv')
 store_data['total_tw_purchases'] = store_data['total_tw_purchases'].astype(float)
 
 
