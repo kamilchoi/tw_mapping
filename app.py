@@ -30,10 +30,10 @@ pio.renderers.default='browser'
 
 
 # import df
-pc_sales_df = gpd.read_file('pc_sales_df.geojson')
+pc_sales_df = gpd.read_file('C:/Users/KAmbrozewicz/Documents/GitHub/tw_mapping/pc_sales_df.geojson')
 
 # join ship from locations
-delivery_loc = pd.read_csv('pc_shipfrom_loc.csv')
+delivery_loc = pd.read_csv('C:/Users/KAmbrozewicz/Documents/GitHub/tw_mapping/pc_shipfrom_loc.csv')
 delivery_loc['Row Labels'] = delivery_loc['Row Labels'].astype('str')
 delivery_loc['Row Labels'] = delivery_loc['Row Labels'].apply(lambda x: '0' + x if x.startswith('8') else x)
 delivery_loc.replace(0, False, inplace = True)
@@ -52,6 +52,55 @@ df = pc_sales_df
 df['terr_colour'] = np.NaN
 
 
+# store data WA bunnings
+store_data = pd.read_csv(r'C:\Users\KAmbrozewicz\OneDrive - UMCOS NEWCOMBE PTY LIMITED\GIS\20221121_SF_latest_add.csv')
+store_data['total_tw_purchases'] = store_data['total_tw_purchases'].astype(float)
+
+
+# Define colors for each group
+color_map = {
+    'BUNNINGS': 'blue',
+    'INDEPENDENTS': 'red'
+}
+
+# Iterate over the 'group' column and assign colors accordingly
+colors = [color_map[group] for group in store_data['group']]
+
+store_markers = go.Scattermapbox(
+    lat=store_data['store_lat'],
+    lon=store_data['store_long'],
+    mode='markers',
+    marker=dict(
+        size=store_data['total_tw_purchases'],
+        sizemode='diameter',
+        sizeref=10000,
+        color=colors,
+        colorscale='Viridis',  # Add a colorscale to enable color differentiation
+        opacity=0.7
+    ),
+    text=store_data['cust name'],
+    name='All'
+)
+
+
+# store_data_indy = pd.read_csv(r'C:\Users\KAmbrozewicz\OneDrive - UMCOS NEWCOMBE PTY LIMITED\GIS\20221121_SF_latest_add.csv')
+
+# store_heatmap = go.Figure(
+#     data=[
+#         go.Densitymapbox(
+#             lat=store_data_indy['lat'],
+#             lon=store_data_indy['long'],
+#             radius=60 ,
+#             name = 'Heatmap',
+#             colorscale='Viridis',  # Specify a discrete color scale
+#             zmin=1,  # Set the minimum value for color scaling
+#             zmax=5  # Set the maximum value for color scaling
+#         )
+#     ]
+# )
+
+
+
 # filter by state to speed up plotting
 
 state_coords = {'NT' : [-19.491411, 132.550964],
@@ -64,19 +113,33 @@ state_coords = {'NT' : [-19.491411, 132.550964],
                 }
 
 # initialise variables
-df_state = df[df.codestte == 'NSW']
+df_state = df[df.codestte == 'WA']
 
 fig = px.choropleth_mapbox(df_state,
                            geojson = df_state.geometry,
                            locations = df_state.index,
                            opacity = 0.2,
-                           center = {'lat' : -33.872762037132375, 'lon' : 147.22963557432993},
+                           center = {'lat' : -25.953512, 'lon' : 117.857048},
                            zoom = 4.5,
-                           height = 1200,
+                           height = 1800,
                            width = 1600,
                            mapbox_style="carto-positron",
                            # uirevision = 'Retain user zoom preferences'
 )
+
+
+fig.update_layout(
+    legend=dict(
+        yanchor="top",
+        y=0.9,
+        xanchor="left",
+        x=0.01,
+        font=dict(
+            size=12
+        )
+    )
+)
+fig.add_trace(store_markers)
 
 # app
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -138,7 +201,7 @@ app.layout = html.Div(
                                      dcc.Dropdown(
                                                  id = 'select_state',
                                                   options = [{'label' : i, 'value' : i} for i in pc_sales_df.codestte.unique()],
-                                                  value = 'NSW',
+                                                  value = 'WA',
                                                   multi = True,
                                                   style = {'width' : 310} 
                                           
@@ -295,56 +358,53 @@ def add_legend(n_clicks, map_upload, container, nn_clicks):
     if map_upload is None:
         if n_clicks is None:
             return container, nn_clicks
-        new_legend = html.Div(id = {'type' : 'legend_div',
-                                    'index': nn_clicks},
-                              children =
-                                [                               
-                                         dbc.Input(id =  {'type' : 'colour_input',
-                                                          'index' : nn_clicks},
-                                                   type = 'color',
-                                                   style = {'width' : 75, 'height' : 50}
-                                         
-                                        ),
-                                         
-                                         dbc.Input(id = {'type' : 'colour_label',
-                                                          'index' : nn_clicks},
-                                                   type = 'text',
-                                                   placeholder = 'Enter a sales territory name',
-                                                   style = {'width' : 395, 'height' : 50}
-                                        )
-                                ], style = {'display' : 'flex'}
-                    ) 
+        new_legend = html.Div(
+            id={'type': 'legend_div', 'index': nn_clicks},
+            children=[
+                dbc.Input(
+                    id={'type': 'colour_input', 'index': nn_clicks},
+                    type='color',
+                    style={'width': 75, 'height': 50}
+                ),
+                dbc.Input(
+                    id={'type': 'colour_label', 'index': nn_clicks},
+                    type='text',
+                    placeholder='Enter a sales territory name',
+                    style={'width': 395, 'height': 50}
+                )
+            ],
+            style={'display': 'flex'}
+        )
         nn_clicks += 1
         container.append(new_legend)
-        
+
         return container, nn_clicks
-    
+
     else:
         json_list = json.loads(map_upload)
         pc_colour_d = json_list[0]
+        container.clear()  # Clear existing legend entries
         for col, label in pc_colour_d.items():
-            new_legend = html.Div(id = {'type' : 'legend_div',
-                                        'index': nn_clicks},
-                                  children =
-                            [                               
-                                     dbc.Input(id =  {'type' : 'colour_input',
-                                                      'index' : nn_clicks},
-                                               value = str(col),
-                                               type = 'color',
-                                               style = {'width' : 75, 'height' : 50}
-                                     
-                                    ),
-                                     
-                                     dbc.Input(id = {'type' : 'colour_label',
-                                                      'index' : nn_clicks},
-                                               type = 'text',
-                                               value = label,
-                                               style = {'width' : 395, 'height' : 50}
-                                    )
-                            ], style = {'display' : 'flex'}
-                        ) 
+            new_legend = html.Div(
+                id={'type': 'legend_div', 'index': nn_clicks},
+                children=[
+                    dbc.Input(
+                        id={'type': 'colour_input', 'index': nn_clicks},
+                        value=str(col),
+                        type='color',
+                        style={'width': 75, 'height': 50}
+                    ),
+                    dbc.Input(
+                        id={'type': 'colour_label', 'index': nn_clicks},
+                        type='text',
+                        value=label,
+                        style={'width': 395, 'height': 50}
+                    )
+                ],
+                style={'display': 'flex'}
+            )
             container.append(new_legend)
-            nn_clicks  += 1
+            nn_clicks += 1
         return container, nn_clicks
     
 # colour selected listener
@@ -410,12 +470,13 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
                                 locations = df_state.index,
                                 opacity = 0.2,
                                 #center = {'lat' : state_coords[selectedState][0], 'lon' : state_coords[selectedState][1]},
-                                center = {'lat' : -33.872762037132375, 'lon' : 147.22963557432993},
+                                center = {'lat' : -25.953512, 'lon' : 117.857048},
                                 zoom = 4.5,
-                                height = 1200,
+                                height = 1800,
                                 width = 1600,
                                 mapbox_style="carto-positron"
     )
+    
     
     selected_df = df_state.loc[postcode_list, :]
     selected_df.reset_index(inplace = True)
@@ -433,14 +494,14 @@ def update_map(postcode_colour_d, selectPC, selectedState, selectedColor, legend
                                   opacity = 0.7
                                   ).data[0]
         )
-
+        
+    
     fig.update_layout(uirevision = 'Retain user zoom preferences')  
+    fig.add_trace(store_markers)
 
     #debug_output = 'index triggered: ' + str(legendTriggered) + ' color selected: ' +str(selectedColor) +  'postcode list: ' + str(postcode_list) + ' ' + str(postcode_colour_d)           
     
     return fig, None, postcode_colour_d, clear_map_data
     
 
-if __name__ == "__main__": app.run_server(debug=True, host='0.0.0.0', port=8050)
-
-
+if __name__ == "__main__": app.run_server(debug=False, host='127.0.0.1', port=8050, dev_tools_hot_reload = True)
